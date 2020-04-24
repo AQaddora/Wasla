@@ -43,7 +43,8 @@ public class AudioManager : MonoBehaviour
 
 	public void PlayEffect(AudioClip clip)
 	{
-		sfxSource.PlayOneShot(clip, 1f);
+		if(clip != null)
+			sfxSource.PlayOneShot(clip, 1f);
 	}
 
 	public void PlayTrueEffect()

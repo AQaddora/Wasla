@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using ArabicSupport;
 using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
@@ -12,57 +15,83 @@ public class QuestionsManager : MonoBehaviour
     [Header("Instantiaion Requirements")]
     public GameObject unorderdCharPrefab;
     public GameObject solutionCharPrefab;
+    public GameObject spacePrefab;
     public Transform unorderdParent;
     public Transform solutionParent;
 
-    public Text questionText;
+    [Header("UI")] 
+    public GameObject questionWithImage;
+    public Image questionImage;
+    public Text questionText, questionTextWithImage;
+    public Sprite loadingSpr;
+    
+    [Header("Test Questions")]
+    public Question[] testQuestion;
 
-    public Question testQuestion;
+    [HideInInspector] public Question[] questions;
+    private int index = -1;
     private void Awake()
     {
         Instance = this;
+
+        //for Testing Only
+        questions = testQuestion;
     }
 
     private void Start()
     {
-        SetQuestion(testQuestion);
+        SetNextQuestion();
     }
 
-    public void SetQuestion(Question question)
+    public void SetNextQuestion()
     {
+        if (index >= questions.Length - 1)
+        {
+            //Finish Level
+            /*For Testing Only*/ SceneManager.LoadScene(0);
+            index = -1;
+        }
+        Question question = questions[++index];
+        
         ClearQuestion();
-        questionText.text = question.questionText;
-        if (question.hasImage)
+        questionText.text = ArabicFixer.Fix(question.questionText);
+        
+        if (question.hasImage && !string.IsNullOrEmpty(question.imageUrl))
         {
-            
+            questionWithImage.SetActive(true);
+            questionTextWithImage.text = ArabicFixer.Fix(question.questionText);
+            StartCoroutine(LoadImage(question.imageUrl));
         }
-
-        if (question.answer.Length > 1 ||question.answer[0].Length > 7)
-        {
-            solutionParent.GetComponent<GridLayoutGroup>().constraint = GridLayoutGroup.Constraint.FixedColumnCount;
-            solutionParent.GetComponent<GridLayoutGroup>().constraintCount = 7;
-        }
-        else
-        {
-            solutionParent.GetComponent<GridLayoutGroup>().constraint = GridLayoutGroup.Constraint.FixedRowCount;
-            solutionParent.GetComponent<GridLayoutGroup>().constraintCount = 1;
-        }
-
         
         int rnd = Random.Range(2, 5);
         for (int i = 0; i < question.answer.Length; i++)
         {
-            for (int j = 0; j < question.answer[i].Length; j++)
+            for (int j = 0; j < 9; j++)
             {
-                SolutionManager.length++;
-                GameObject solObj = Instantiate(solutionCharPrefab);
-                solObj.transform.parent = solutionParent;
-                solObj.transform.localScale = Vector3.one;
-                GameObject unordObj = Instantiate(unorderdCharPrefab);
-                unordObj.transform.parent = unorderdParent;
-                unordObj.transform.localScale = Vector3.one;
-                unordObj.GetComponentInChildren<Text>().text  = question.answer[i][j].ToString();
+                if (j < question.answer[i].Length)
+                {
+                    SolutionManager.CorrectSolution.Add(question.answer[i][j]);
+                    SolutionManager.CurrentSolution.Add(' ');
+                    GameObject solObj = Instantiate(solutionCharPrefab);
+                    solObj.transform.parent = solutionParent;
+                    solObj.transform.localScale = Vector3.one;
+                    AddUnorderdCharacter(question.answer[i][j].ToString());
+                }
+                else
+                {
+                    SolutionManager.CorrectSolution.Add(' ');
+                    SolutionManager.CurrentSolution.Add(' ');
+                    GameObject solObj = Instantiate(spacePrefab);
+                    solObj.transform.parent = solutionParent;
+                    solObj.transform.localScale = Vector3.one;
+                }
             }
+        }
+
+        for (int i = 0; i < rnd; i++)
+        {
+            char randomChar = (char)( 'ب' + Random.Range(0, 20));
+            AddUnorderdCharacter(randomChar.ToString());
         }
         
         for (int i = 0; i < unorderdParent.childCount; i++)
@@ -71,7 +100,19 @@ public class QuestionsManager : MonoBehaviour
         }
     }
 
+    public IEnumerator LoadImage(string url)
+    {
+        UnityWebRequest www = UnityWebRequestTexture.GetTexture(url);
+        yield return www.SendWebRequest();
 
+        if(www.isNetworkError || www.isHttpError) {
+            Debug.Log(www.error);
+        }
+        else {
+            Texture2D texture = ((DownloadHandlerTexture)www.downloadHandler).texture;
+            questionImage.sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0, 0));
+        }
+    }
     public void AddUnorderdCharacter(string character)
     {
         GameObject unordObj = Instantiate(unorderdCharPrefab);
@@ -82,7 +123,13 @@ public class QuestionsManager : MonoBehaviour
     void ClearQuestion()
     {
         questionText.text = "";
-        SolutionManager.length = 0;
+        questionWithImage.SetActive(false);
+        unorderdParent.GetComponent<GridLayoutGroup>().enabled = true;
+        SolutionManager.emptyIndex = 0;
+        SolutionManager.CorrectSolution = new List<char>();
+        SolutionManager.CurrentSolution = new List<char>();
+        questionImage.sprite = loadingSpr;
+        
         for (int i = 0; i < solutionParent.childCount; i++)
         {
             Destroy(solutionParent.GetChild(i).gameObject);
