@@ -7,7 +7,7 @@ using UnityEngine.Assertions.Must;
 
 public class ContenCompactor : MonoBehaviour
 {
-    public int coutentsCount;
+    public int contentsFilesCount;
 
     Content mainContent;
     private List<Content> _contents;
@@ -15,37 +15,7 @@ public class ContenCompactor : MonoBehaviour
     private string directoryPath;
     void Start()
     {
-        unitNames = new HashSet<string>();
-        lessonNames = new HashSet<string>();
-        questionTexts = new HashSet<string>();
-        mainContent = new Content();
-        directoryPath = "C:\\Users\\HP\\Documents\\GitHub\\UnityProjects\\Wasla\\Contents";
-        _contents = new List<Content>();
-        for (int i = 0; i < coutentsCount; i++)
-        {
-            string fileName = (i+1).ToString();
-            string json = File.ReadAllText(directoryPath +  "\\" + fileName + ".data");
-            Content temp = new Content();
-            temp = JsonUtility.FromJson<Content>(json);
-            _contents.Add(temp);
-        }
-
-        //Transfer Units to the main Content Object.
-        for (int i = 0; i < _contents.Count; i++)
-        {
-            foreach (Unit u in _contents[i].units)
-            {
-                mainContent.units.Add(u);
-            }
-        }
         
-        //Comnpact Units
-        CompactUnits();
-        
-        //Compact Lessons
-        CompactLessons();
-        
-        PrintContent();
     }
 
     void CompactUnits()
@@ -101,10 +71,14 @@ public class ContenCompactor : MonoBehaviour
     {
         foreach (Unit unit in mainContent.units)
         {
-            string s = "";
+            string s = "\n";
             foreach (Lesson lesson in unit.lessons)
             {
-                s += lesson.lessonName + ", ";
+                s += lesson.lessonName + " -> ";
+                foreach (Question question in lesson.questions)
+                {
+                    s += question.questionText + "\n\t";
+                }
             }
             Debug.Log(unit.unitName + " -> " + s);
         }
@@ -134,5 +108,61 @@ public class ContenCompactor : MonoBehaviour
         }
 
         return null;
+    }
+    string path, jsonOutput;
+    public void CompactContent()
+    {
+        unitNames = new HashSet<string>();
+        lessonNames = new HashSet<string>();
+        questionTexts = new HashSet<string>();
+        mainContent = new Content();
+        directoryPath = "F:\\GamerBoxStudios Company\\GitHub\\UnityProjects\\Wasla\\Contents";
+        _contents = new List<Content>();
+        contentsFilesCount = PlayerPrefs.GetInt("LAST_SAVED", 1) - 1;
+        for (int i = 0; i < contentsFilesCount; i++)
+        {
+            string fileName = (i + 1).ToString();
+            string json = File.ReadAllText(directoryPath + "\\" + fileName + ".data");
+            Content temp = new Content();
+            temp = JsonUtility.FromJson<Content>(json);
+            _contents.Add(temp);
+        }
+
+        //Transfer Units to the main Content Object.
+        for (int i = 0; i < _contents.Count; i++)
+        {
+            foreach (Unit u in _contents[i].units)
+            {
+                mainContent.units.Add(u);
+            }
+        }
+
+        //Comnpact Units
+        CompactUnits();
+
+        //Compact Lessons
+        CompactLessons();
+
+        FindObjectOfType<ContentInserter>().content = mainContent;
+
+        PrintContent();
+
+        SaveCompactedData();
+    }
+
+    public void SaveCompactedData()
+    {
+        jsonOutput = JsonUtility.ToJson(mainContent);
+        Debug.Log(jsonOutput);
+
+        string fileName = "pure content";
+        path = directoryPath + "\\" + fileName + ".data";
+        File.Create(path);
+        Invoke(nameof(writePureContentText), 3f);
+    }
+
+    void writePureContentText()
+    {
+        File.WriteAllText(path, jsonOutput);
     }
 }

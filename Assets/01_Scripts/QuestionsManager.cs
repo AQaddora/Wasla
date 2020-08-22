@@ -28,28 +28,30 @@ public class QuestionsManager : MonoBehaviour
     [Header("Test Questions")]
     public Question[] testQuestion;
 
-    [HideInInspector] public Question[] questions;
+    [HideInInspector] public List<Question> questions;
     private int index = -1;
     private void Awake()
     {
         Instance = this;
-
-        //for Testing Only
-        questions = testQuestion;
+        questions = new List<Question>();
     }
-
-    private void Start()
+    private void Update()
     {
-        SetNextQuestion();
+        if (Input.GetKeyDown(KeyCode.Escape) && index != -1)
+        {
+            index = -1;
+            questions = new List<Question>();
+            UIManager.Instance.ShowLessons();
+        }
     }
-
     public void SetNextQuestion()
     {
-        if (index >= questions.Length - 1)
+        if (index >= questions.Count - 1)
         {
-            //Finish Level
-            /*For Testing Only*/ SceneManager.LoadScene(0);
             index = -1;
+            questions = new List<Question>();
+            UIManager.Instance.ShowLessons() ;
+            return;
         }
         Question question = questions[++index];
         
@@ -87,7 +89,7 @@ public class QuestionsManager : MonoBehaviour
                 }
             }
         }
-
+        
         for (int i = 0; i < rnd; i++)
         {
             char randomChar = (char)( 'ب' + Random.Range(0, 20));

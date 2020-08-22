@@ -7,8 +7,8 @@ using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
-    [Header("Screens")] [SerializeField] private Fader title;
-    [SerializeField] private Fader settings, quitPanel, game, levels; 
+    [Header("Screens")] [SerializeField] Fader title;
+    [SerializeField] private Fader settings, quitPanel, game, units, lessons; 
     public static UIManager Instance;
 
     private void Awake()
@@ -28,14 +28,22 @@ public class UIManager : MonoBehaviour
     public void PlayButton_OnClick()
     {
         HideAll();
-        levels.Show();
+        units.Show();
     }
 
-    public void ChooseLevel(int id)
+    public void ShowLessons()
+    {
+        HideAll();
+        lessons.Show();
+    }
+
+    public void StartGame()
     {
         HideAll();
         game.Show();
+        QuestionsManager.Instance.SetNextQuestion();
     }
+
 
     public void PauseButton()
     {

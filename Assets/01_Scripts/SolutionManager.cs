@@ -32,13 +32,15 @@ public class SolutionManager : MonoBehaviour
         SetEmptyIndex();
     }
 
-    public void Add(string addedCharacter)
+    public bool Add(string addedCharacter)
     {
         QuestionsManager.Instance.unorderdParent.GetComponent<GridLayoutGroup>().enabled = false;
         AudioManager.Instance.PlayEffect(addEffect);
         if (emptyIndex >= CorrectSolution.Count)
-            return;
-        transform.GetChild(emptyIndex).GetComponentInChildren<Text>().text = addedCharacter;
+            return false;
+        Text boxText = transform.GetChild(emptyIndex).GetComponentInChildren<Text>();
+        Drop(emptyIndex, boxText.text);
+        boxText.text = addedCharacter;
         CurrentSolution[emptyIndex] = addedCharacter[0];
         if(!SetEmptyIndex())
         {
@@ -52,6 +54,7 @@ public class SolutionManager : MonoBehaviour
                 AudioManager.Instance.PlayWrongEffect();
             }
         }
+        return true;
     }
 
     public bool SetEmptyIndex()

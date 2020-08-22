@@ -9,7 +9,7 @@ public class ContentInserter : MonoBehaviour
 {
     public Content content;
 
-    string directoryPath = "C:\\Users\\HP\\Documents\\GitHub\\UnityProjects\\Wasla\\Contents";
+    string directoryPath = "F:\\GamerBoxStudios Company\\GitHub\\UnityProjects\\Wasla\\Contents";
     [Header("Faders")] 
     [SerializeField] Fader addUnits;
     [SerializeField] Fader addLessons, addQuestions;
@@ -52,7 +52,7 @@ public class ContentInserter : MonoBehaviour
     {
         string question = questionText.text;
         string[] answer = answerInput.text.Split(' ');
-        bool hasImage = string.IsNullOrEmpty(imageUrlInput.text);
+        bool hasImage = !string.IsNullOrEmpty(imageUrlInput.text);
         string imageUrl = imageUrlInput.text;
         Question q = new Question(question, answer,imageUrl, hasImage);
         currentLesson.questions.Add(q);
@@ -79,9 +79,10 @@ public class ContentInserter : MonoBehaviour
         addQuestions.Hide();
         addUnits.Show();
     }
+    string path, jsonOutput;
     public void SaveData()
     {
-        string jsonOutput = JsonUtility.ToJson(content);
+        jsonOutput = JsonUtility.ToJson(content);
         Debug.Log(jsonOutput);
         if (!PlayerPrefs.HasKey("LAST_SAVED"))
         {
@@ -92,10 +93,16 @@ public class ContentInserter : MonoBehaviour
         string fileName = lastSaved.ToString();
         lastSaved++;
         PlayerPrefs.SetInt("LAST_SAVED", lastSaved);
-        string path = directoryPath + "\\" + fileName + ".data";
+        path = directoryPath + "\\" + fileName + ".data";
         
         File.Create(path);
         //SET ACCESS
-        //File.WriteAllText(path,jsonOutput);
+        Invoke(nameof(writeText), 3f);
+    }
+
+    void writeText()
+    {
+        File.WriteAllText(path, jsonOutput);
+        FindObjectOfType<ContenCompactor>().Invoke("CompactContent", 5f);
     }
 }

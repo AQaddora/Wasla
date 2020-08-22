@@ -15,7 +15,7 @@ public class UnorderdItemScript : MonoBehaviour
 
     void AddChar()
     {
-        SolutionManager.Instance.Add(GetComponentInChildren<Text>().text);
-        Destroy(transform.gameObject);
+        if(SolutionManager.Instance.Add(GetComponentInChildren<Text>().text));
+            Destroy(transform.gameObject);
     }
 }
