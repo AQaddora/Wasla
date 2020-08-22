@@ -11,10 +11,19 @@
         <e p="01_Scripts" t="Include">
           <e p="AudioManager.cs" t="Include" />
           <e p="Constants.cs" t="Include" />
+          <e p="Content.cs" t="Include" />
           <e p="Fader.cs" t="Include" />
+          <e p="Lesson.cs" t="Include" />
           <e p="Question.cs" t="Include" />
+          <e p="QuestionsManager.cs" t="Include" />
+          <e p="SolutionItemScript.cs" t="Include" />
+          <e p="SolutionManager.cs" t="Include" />
           <e p="UIManager.cs" t="Include" />
+          <e p="Unit.cs" t="Include" />
+          <e p="UnorderdItemScript.cs" t="Include" />
         </e>
+        <e p="AddUnit.cs" t="Include" />
+        <e p="ArabicInputField.cs" t="Include" />
         <e p="ArabicSupport" t="Include">
           <e p="ArabicSupport.cs" t="Include" />
           <e p="Scripts" t="Include">
@@ -23,6 +32,8 @@
             <e p="SetArabicTextExample.cs" t="Include" />
           </e>
         </e>
+        <e p="ContenCompactor.cs" t="Include" />
+        <e p="ContentInserter.cs" t="Include" />
         <e p="Editor" t="Include">
           <e p="ClearPrefs.cs" t="Include" />
         </e>
@@ -36,7 +47,6 @@
             </e>
           </e>
         </e>
-        <e p="QuestionsManager.cs" t="Include" />
         <e p="SFX &amp; sounds" t="Include">
           <e p="Retro Sound Effects" t="Include">
             <e p="Demo" t="Include">
@@ -44,8 +54,6 @@
             </e>
           </e>
         </e>
-        <e p="SolutionItemScript.cs" t="Include" />
-        <e p="SolutionManager.cs" t="Include" />
         <e p="UI Assets" t="Include">
           <e p="Looader" t="Include">
             <e p="Editor" t="Include">
@@ -485,7 +493,6 @@
             </e>
           </e>
         </e>
-        <e p="UnorderdItemScript.cs" t="Include" />
       </e>
       <e p="obj" t="ExcludeRecursive" />
       <e p="Packages" t="ExcludeRecursive" />
